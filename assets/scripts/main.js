@@ -25,6 +25,7 @@ async function init() {
     console.error(err);
   }
   // Add each recipe to the <main> element
+  console.log(typeof recipes);
   addRecipesToDocument(recipes);
 }
 
@@ -45,6 +46,45 @@ function initializeServiceWorker() {
   // We first must register our ServiceWorker here before any of the code in
   // sw.js is executed.
   // B1. TODO - Check if 'serviceWorker' is supported in the current browser
+  
+  /*if('serviceWorker' in Navigator){
+    window.addEventListener('load', async () => {
+      try{
+        let registration = await navigator.serviceWorker.register("./sw.js", {
+          scope: "/"
+        });
+        
+        await registration.active;
+        console.log("Service Worker Active");
+      }
+      catch(e){
+        console.log("Service Worker Not Installed");
+      }
+    })
+  }*/
+  console.log("Heh?")
+  let registerServiceWorker = async () => {
+    console.log("Hi");
+    if ("serviceWorker" in navigator) {
+      console.log("Hello");
+      try {
+        const registration = await navigator.serviceWorker.register("./sw.js", {
+          scope: "/",
+        });
+        if (registration.installing) {
+          console.log("Service worker installing");
+        } else if (registration.waiting) {
+          console.log("Service worker installed");
+        } else if (registration.active) {
+          console.log("Service worker active");
+        }
+      } catch (error) {
+        console.error(`Registration failed with ${error}`);
+      }
+    }
+  };
+
+  registerServiceWorker();
   // B2. TODO - Listen for the 'load' event on the window object.
   // Steps B3-B6 will be *inside* the event listener's function created in B2
   // B3. TODO - Register '/sw.js' as a service worker (The MDN article
@@ -68,6 +108,10 @@ async function getRecipes() {
   // EXPOSE - START (All expose numbers start with A)
   // A1. TODO - Check local storage to see if there are any recipes.
   //            If there are recipes, return them.
+  if(localStorage.getItem('recipes')){
+    console.log(localStorage.getItem('recipes'));
+    return JSON.parse(localStorage.getItem('recipes'));
+  }
   /**************************/
   // The rest of this method will be concerned with requesting the recipes
   // from the network
@@ -78,6 +122,33 @@ async function getRecipes() {
   //            take two parameters - resolve, and reject. These are functions
   //            you can call to either resolve the Promise or Reject it.
   /**************************/
+
+  let recipeFetch = [];
+
+  let promiseA = new Promise(async function(resolve, reject) {
+    for(let i = 0; i < RECIPE_URLS.length; i++){
+      try{
+        let response = await fetch(RECIPE_URLS[i]);
+        let responseJSON = await response.json();
+        recipeFetch.push(responseJSON);
+      }
+      catch(e){
+        console.error(e);
+        reject(e);
+      }
+    }
+
+    saveRecipesToStorage(recipeFetch);
+    resolve(recipeFetch);
+  });
+
+  promiseA.then(
+    function(recipeFectch) {return recipeFectch;},
+    function(error) {return error;}
+  );  
+
+  return promiseA;
+
   // A4-A11 will all be *inside* the callback function we passed to the Promise
   // we're returning
   /**************************/
