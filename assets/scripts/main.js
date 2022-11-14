@@ -78,6 +78,7 @@ function initializeServiceWorker() {
         } else if (registration.active) {
           console.log("Service worker active");
         }
+        registration.update();
       } catch (error) {
         console.error(`Registration failed with ${error}`);
       }
