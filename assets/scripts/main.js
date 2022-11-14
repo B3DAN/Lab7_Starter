@@ -47,26 +47,8 @@ function initializeServiceWorker() {
   // sw.js is executed.
   // B1. TODO - Check if 'serviceWorker' is supported in the current browser
   
-  /*if('serviceWorker' in Navigator){
-    window.addEventListener('load', async () => {
-      try{
-        let registration = await navigator.serviceWorker.register("./sw.js", {
-          scope: "/"
-        });
-        
-        await registration.active;
-        console.log("Service Worker Active");
-      }
-      catch(e){
-        console.log("Service Worker Not Installed");
-      }
-    })
-  }*/
-  console.log("Heh?")
   let registerServiceWorker = async () => {
-    console.log("Hi");
     if ("serviceWorker" in navigator) {
-      console.log("Hello");
       try {
         const registration = await navigator.serviceWorker.register("./sw.js", {
           scope: "./",
